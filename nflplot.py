@@ -1,50 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
-
-
-# ---------- INTERNAL FUNCTIONS ----------------- #####
-def _rgb(r, g, b):
-    # Converts RGB range from 0-255 to 0-1 for matplotlib.
-    # Returns np.array of length 3.
-    return np.array([r, g, b]) / 255.0
+import nflutil
 
 
 # --------- CONSTANTS --------------------------- ####
-FIELD_SIZE_X = 120.0  # yards, field goal to field goal (back of endzones)
-FIELD_SIZE_Y = 53.3  # yards, sideline to sideline
-TEAM_COLORS = {'ARI': {'main': _rgb(155, 35, 63), 'secondary': _rgb(0, 0, 0)},
-               'ATL': {'main': _rgb(0, 0, 0), 'secondary': _rgb(255, 255, 255)},
-               'BAL': {'main': _rgb(26, 25, 95), 'secondary': _rgb(0, 0, 0)},
-               'BUF': {'main': _rgb(0, 51, 141), 'secondary': _rgb(198, 12, 48)},
-               'CAR': {'main': _rgb(0, 133, 202), 'secondary': _rgb(16, 24, 32)},
-               'CHI': {'main': _rgb(11, 22, 42), 'secondary': _rgb(200, 56, 3)},
-               'CIN': {'main': _rgb(251, 79, 20), 'secondary': _rgb(0, 0, 0)},
-               'CLE': {'main': _rgb(255, 60, 0), 'secondary': _rgb(49, 29, 0)},
-               'DAL': {'main': _rgb(0, 34, 68), 'secondary': _rgb(134, 147, 151)},
-               'DEN': {'main': _rgb(0, 34, 68), 'secondary': _rgb(251, 79, 20)},
-               'DET': {'main': _rgb(0, 118, 182), 'secondary': _rgb(176, 183, 188)},
-               'GB': {'main': _rgb(24, 48, 40), 'secondary': _rgb(255, 184, 28)},
-               'HOU': {'main': _rgb(3, 32, 47), 'secondary': _rgb(167, 25, 48)},
-               'IND': {'main': _rgb(0, 44, 95), 'secondary': _rgb(162, 170, 173)},
-               'JAX': {'main': _rgb(0, 103, 120), 'secondary': _rgb(16, 24, 32)},
-               'KC': {'main': _rgb(227, 24, 55), 'secondary': _rgb(255, 255, 255)},
-               'LA': {'main': _rgb(0, 53, 148), 'secondary': _rgb(255, 209, 0)},
-               'LAC': {'main': _rgb(0, 42, 94), 'secondary': _rgb(255, 194, 14)},
-               'MIA': {'main': _rgb(0, 142, 151), 'secondary': _rgb(252, 76, 2)},
-               'MIN': {'main': _rgb(79, 38, 131), 'secondary': _rgb(255, 255, 255)},
-               'NE': {'main': _rgb(0, 34, 68), 'secondary': _rgb(176, 183, 188)},
-               'NO': {'main': _rgb(211, 188, 141), 'secondary': _rgb(16, 24, 31)},
-               'NYG': {'main': _rgb(1, 35, 82), 'secondary': _rgb(163, 13, 45)},
-               'NYJ': {'main': _rgb(18, 87, 64), 'secondary': _rgb(255, 255, 255)},
-               'OAK': {'main': _rgb(0, 0, 0), 'secondary': _rgb(165, 172, 175)},
-               'PHI': {'main': _rgb(0, 76, 84), 'secondary': _rgb(165, 172, 175)},
-               'PIT': {'main': _rgb(16, 24, 32), 'secondary': _rgb(255, 182, 18)},
-               'SEA': {'main': _rgb(0, 34, 68), 'secondary': _rgb(105, 190, 40)},
-               'SF': {'main': _rgb(170, 0, 0), 'secondary': _rgb(173, 153, 93)},
-               'TB': {'main': _rgb(213, 10, 10), 'secondary': _rgb(10, 10, 8)},
-               'TEN': {'main': _rgb(12, 35, 64), 'secondary': _rgb(75, 146, 219)},
-               'WAS': {'main': _rgb(63, 16, 16), 'secondary': _rgb(255, 182, 18)}}
+FIELD_SIZE_X = nflutil.FIELD_SIZE_X  # yards, field goal to field goal (back of endzones)
+FIELD_SIZE_Y = nflutil.FIELD_SIZE_Y  # yards, sideline to sideline
+TEAM_COLORS = nflutil.TEAM_COLORS  # dict of {'Team': (R,G,B)} where RGB values are in range 0-1
 
 
 # -------- CLASSES ----------------------------------- ###
@@ -107,7 +70,7 @@ class PlayAnimation:
         # output animation
         self.animation = animation.FuncAnimation(self._fig, self.update, frames=self._frame_ids, interval=100,
                                                  init_func=self.base_plot)
-        plt.close()
+        # plt.close()
 
     @staticmethod
     def set_axis_plots(ax, max_x, max_y):
@@ -136,9 +99,13 @@ class PlayAnimation:
         dir_factor = 1 if self._frame_data.playDirection.iloc[0] == 'right' else -1
         self._ax_base.axvline(los + dir_factor * self._first_down_distance, color='darkorange', linestyle='-')
 
+        # plot the sidelines
+        for side_line in [0, FIELD_SIZE_Y]:
+            self._ax_base.plot([0, FIELD_SIZE_X], [side_line, side_line], color='k', linestyle='-', alpha=0.8)
+
         # plot the line markers across the field in 10-yard increments
-        for yd_line in range(0, 121, 10):
-            self._ax_base.axvline(yd_line, color='k', linestyle='-', alpha=0.2)
+        for yd_line in range(0, int(FIELD_SIZE_X) + 1, 10):
+            self._ax_base.plot([yd_line, yd_line], [0, FIELD_SIZE_Y], color='k', linestyle='-', alpha=0.2)
 
         # plot all hash marks not on the lines across the field (converted yard lines to x-coordinates)
         hash_x = np.array([i for i in range(1, 100) if i % 10 != 0]) + 10
@@ -149,8 +116,8 @@ class PlayAnimation:
             self._ax_base.plot([yd_line, yd_line], [29.75, 30.416], color='k', alpha=0.2)
 
         # endzone markers and 50 yard line with darker lines
-        for ez_line in [10, 60, 110]:
-            self._ax_base.axvline(ez_line, color='k', linestyle='-', alpha=0.8)
+        for ez_line in [0, 10, 60, 110, 120]:
+            self._ax_base.plot([ez_line, ez_line], [0, FIELD_SIZE_Y], color='k', linestyle='-', alpha=0.8)
 
         # add placeholders for the player-specific plot items
         for _ in range(self._num_players):
