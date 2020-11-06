@@ -13,13 +13,13 @@ def _rgb(r, g, b):
 # --------- CONSTANTS --------------------------- ####
 FIELD_SIZE_X = 120.0  # yards, field goal to field goal (back of endzones)
 FIELD_SIZE_Y = 53.3  # yards, sideline to sideline
-TEAM_COLORS = {'ARI': {'main': _rgb(155, 35, 63), 'secondary': _rgb(0, 0, 0)},
+TEAM_COLORS = {'ARI': {'main': _rgb(155, 35, 63), 'secondary': _rgb(255, 255, 255)},
                'ATL': {'main': _rgb(0, 0, 0), 'secondary': _rgb(255, 255, 255)},
-               'BAL': {'main': _rgb(26, 25, 95), 'secondary': _rgb(0, 0, 0)},
+               'BAL': {'main': _rgb(26, 25, 95), 'secondary': _rgb(255, 255, 255)},
                'BUF': {'main': _rgb(0, 51, 141), 'secondary': _rgb(198, 12, 48)},
                'CAR': {'main': _rgb(0, 133, 202), 'secondary': _rgb(16, 24, 32)},
                'CHI': {'main': _rgb(11, 22, 42), 'secondary': _rgb(200, 56, 3)},
-               'CIN': {'main': _rgb(251, 79, 20), 'secondary': _rgb(0, 0, 0)},
+               'CIN': {'main': _rgb(251, 79, 20), 'secondary': _rgb(255, 255, 255)},
                'CLE': {'main': _rgb(255, 60, 0), 'secondary': _rgb(49, 29, 0)},
                'DAL': {'main': _rgb(0, 34, 68), 'secondary': _rgb(134, 147, 151)},
                'DEN': {'main': _rgb(0, 34, 68), 'secondary': _rgb(251, 79, 20)},
