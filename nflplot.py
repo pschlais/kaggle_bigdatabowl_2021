@@ -27,6 +27,7 @@ class PlayAnimation:
         """
         # Filter down DataFrames to the specific play (tracks, game, and play info)
         track_df = track_df[(track_df.gameId == game_id) & (track_df.playId == play_id)].sort_values('frameId')
+        track_df = track_df.drop_duplicates()
         game_df = game_df[game_df.gameId == game_id].iloc[0]
         play_df = play_df[(play_df.gameId == game_id) & (play_df.playId == play_id)].iloc[0]
 
